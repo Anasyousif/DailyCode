@@ -1,28 +1,89 @@
-from tkinter import *
-import requests
+import random
 
-def get_quote():
-    response = requests.get("https://api.kanye.rest")
-    response.raise_for_status()
-    data = response.json()
-    quote = data["quote"]
-    canvas.itemconfig("quote_text",text=quote)
+MAX_LINES = 3
+MAX_BET = 100
+MIN_BET = 1
+
+ROWS = 3
+COLS = 3
+
+symbol_count = {
+    "A":2,
+    "B":4,
+    "C":6,
+    "D":8
+}
+
+def get_slot_machine_spin(rows, cols, symbols):
+    all_symbols = []
+    for symbol, symbol_count in symbols.item():
+        for _ in range(symbol_count):
+            all_symbols.append(symbol)
+    columns = [[], [], []]        
+    for col in range(cols):
+        for row in range(rows):
+            value = random.choice(all_symbols) 
+
+def deposit():
+    while True:
+        amount = input("What would you like to deposit? $")
+        if amount.isdigit():
+            amount = int(amount)
+            if amount > 0:
+                break
+            else:
+                print("Amount must be greater than 0.")
+        else:
+            print("Please enter a number.")
+
+    return amount
 
 
-window = Tk()
-window.title("Kanye Says...")
-window.config(padx=50, pady=50)
+def get_number_of_lines():
+    while True:
+        lines = input(
+            "Enter the number of lines to bet on (1-" + str(MAX_LINES) + ")? ")
+        if lines.isdigit():
+            lines = int(lines)
+            if 1 <= lines <= MAX_LINES:
+                break
+            else:
+                print("Enter a valid number of lines.")
+        else:
+            print("Please enter a number.")
 
-canvas = Canvas(width=300, height=414)
-background_img = PhotoImage(file="background.png")
-canvas.create_image(150, 207, image=background_img)
-quote_text = canvas.create_text(150, 207, text="Kanye Quote Goes HERE", width=250, font=("Arial", 30, "bold"), fill="white")
-canvas.grid(row=0, column=0)
-
-kanye_img = PhotoImage(file="kanye.png")
-kanye_button = Button(image=kanye_img, highlightthickness=0, command=get_quote)
-kanye_button.grid(row=1, column=0)
+    return lines
 
 
+def get_bet():
+    while True:
+        amount = input("What would you like to bet on each line? $")
+        if amount.isdigit():
+            amount = int(amount)
+            if MIN_BET <= amount <= MAX_BET:
+                break
+            else:
+                print(f"Amount must be between ${MIN_BET} - ${MAX_BET}.")
+        else:
+            print("Please enter a number.")
 
-window.mainloop()
+    return amount
+
+
+def main():
+    balance = deposit()
+    lines = get_number_of_lines()
+    while True:
+        bet = get_bet()
+        total_bet = bet * lines
+
+        if total_bet > balance:
+            print(
+                f"You do not have enough tobety that amount, your current balance is: ${balance}")
+    else:
+        break
+    print(
+        f"You are betting ${bet} on {lines} lines. Total bet is equal to: ${total_bet}")
+
+
+main()
